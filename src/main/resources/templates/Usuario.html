@@ -1,0 +1,168 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+    <body layout:fragment="body">
+
+        <div class="container my-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Listado de Usuarios</h2>
+                <a class="btn btn-success shadow-sm" th:href="@{/usuario/form/0}">
+                    <i class="fa fa-user-plus me-1"></i> Agregar Usuario
+                </a>
+            </div>
+
+            <form method="post" th:object="${usuario}" th:action="@{usuario}">
+                <div class="mb-3 d-flex gap-2">
+                    <button class="btn btn-primary shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosBusqueda" aria-expanded="false" aria-controls="filtrosBusqueda">
+                        <i class="fa fa-filter me-1"></i> Filtros
+                    </button>
+                    <button type="submit" class="btn btn-success shadow-sm" id="btnBuscar">
+                        <i class="fa fa-search me-1"></i> Buscar
+                    </button>
+                </div>
+
+                <div class="collapse" id="filtrosBusqueda">
+                    <div class="card card-body shadow-sm">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" placeholder="Nombre" th:field="*{Nombre}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="apellidoPaterno" class="form-label">Apellido Paterno</label>
+                                <input type="text" class="form-control" id="apellidoPaterno" placeholder="Apellido Paterno" th:field="*{ApellidoParteno}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="apellidoMaterno" class="form-label">Apellido Materno</label>
+                                <input type="text" class="form-control" id="apellidoMaterno" placeholder="Apellido Materno" th:field="*{ApellidoMaterno}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="rol" class="form-label">Rol</label>
+                                <select class="form-select" id="rol" th:field="*{Rol.IdRol}">
+                                    <option value=0>Selecciona un Rol</option>
+                                    <option th:each="rol : ${roles}" th:value="${rol.IdRol}" th:text="${rol.Nombre}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="isActivo" class="form-label">Estado</label>
+                                <select class="form-select" id="isActivo" th:field="*{IsActivo}">
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="container my-5">
+            <div class="table-responsive shadow-sm rounded">
+                <table class="table table-striped table-hover table-bordered align-middle">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th>Fecha de Nacimiento</th>
+                            <th>Contacto</th>
+                            <th>Rol</th>
+                            <th>Direccion</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="usuarioDireccion : ${usuariosDireccion}">
+                            <td th:text="${usuarioDireccion.usuarioD.IdUsuario}"></td>
+                            <td th:text="|${usuarioDireccion.usuarioD.Nombre} ${usuarioDireccion.usuarioD.ApellidoParteno} ${usuarioDireccion.usuarioD.ApellidoMaterno}|"></td>
+                            <td th:text="${usuarioDireccion.usuarioD.FechaDeNacimiento}"></td>
+                            <td th:utext="|${usuarioDireccion.usuarioD.NumeroDeTelefono} <br/> ${usuarioDireccion.usuarioD.Celular} <br/> ${usuarioDireccion.usuarioD.Email}|"></td>
+                            <td th:text="${usuarioDireccion.usuarioD.Rol.Nombre}"></td>
+                            <td>
+                                <ul class="list-unstyled">
+                                    <li th:each="direccion : ${usuarioDireccion.Direcciones}"
+                                        th:text="(${direccion.calle} == null) ? 'Sin Direccion' : 
+                                        |${direccion.Calle}, ${direccion.NumeroInterior}, ${direccion.NumeroExterior}, 
+                                        ${direccion.colonia.NombreColonia}, ${direccion.colonia.CodigoPostal}, 
+                                        ${direccion.colonia.municipio.NombreMunicipio}, 
+                                        ${direccion.colonia.municipio.estado.NombreEstado}, 
+                                        ${direccion.colonia.municipio.estado.pais.NombrePais}|">
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="text-center">
+                                <a class="btn btn-sm btn-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"
+                                   th:href="@{/usuario/form/} + (${usuarioDireccion.usuarioD.IdUsuario})">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <a class="btn btn-sm btn-danger me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"
+                                   th:href="@{/usuario/deleteUsuario?idUsuario=} + (${usuarioDireccion.usuarioD.IdUsuario})">
+                                    <i class="fa fa-trash-alt"></i>
+                                </a>
+                                <div class="form-check form-switch d-inline-block">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           th:attr="data-idusuario=${usuarioDireccion.usuarioD.IdUsuario}"
+                                           th:checked="${usuarioDireccion.usuarioD.IsActivo} ? true : false">
+                                    <label class="form-check-label ms-1">Activo</label>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" 
+                integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" 
+        crossorigin="anonymous"></script>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script>
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+            $(document).ready(function () {
+
+                const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+
+
+                $('#btnMostrarFiltros').click(function () {
+                    $('#filtrosBusqueda').slideDown();
+                    $('#btnMostrarFiltros').hide();
+                    $('#btnOcultarFiltros').show();
+                    $('#btnBuscar').show();
+                });
+
+
+                $('#btnOcultarFiltros').click(function () {
+                    $('#filtrosBusqueda').slideUp();
+                    $('#btnOcultarFiltros').hide();
+                    $('#btnBuscar').hide();
+                    $('#btnMostrarFiltros').show();
+                });
+
+                $('.form-check-input').change(function () {
+                    var valor = $(this).is(':checked') ? 1 : 0;
+                    var idUsuario = $(this).data('idusuario');
+
+                    $.ajax({
+                        url: '/usuario/isActivo?idUsuario=' + idUsuario + '&status=' + valor,
+                        type: 'GET',
+                        success: function (response) {
+                            console.log('Servidor respondio: ' + response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error en la peticion AJAX: ' + error);
+                        }
+                    });
+                });
+
+            });
+
+        </script>
+    </body>
+</html>
