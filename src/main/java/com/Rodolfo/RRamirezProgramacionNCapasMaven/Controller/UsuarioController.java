@@ -14,14 +14,16 @@ import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.ResultValidarDatos;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Rol;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Usuario;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.UsuarioDireccion;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -204,40 +205,64 @@ public class UsuarioController {
     }
 
     @PostMapping("CargaMasiva")
-    public String CargaMasiva(@RequestParam MultipartFile archivo, Model model) throws IOException {
+    public String CargaMasiva(@RequestParam MultipartFile archivo, Model model, HttpSession session) throws IOException {
         if (archivo != null && !archivo.isEmpty()) {
             String extension = archivo.getOriginalFilename().split("\\.")[1];
-
-            // Procesar archivo desde MultipartFile antes de transferTo
-            List<UsuarioDireccion> usuariosDireccion = new ArrayList<>();
-            if (extension.equalsIgnoreCase("txt")) {
-                usuariosDireccion = LecturaArchivoTXT(archivo);
-            } else if (extension.equalsIgnoreCase("xlsx")) {
-                usuariosDireccion = LecturaArchivoXLSX(archivo);
-            }
-
-            // Validar datos
-            List<ResultValidarDatos> errores = ValidarDatos(usuariosDireccion);
-            if (!errores.isEmpty()) {
-                model.addAttribute("errores", errores);
-                return "CargaMasiva";
-            }
 
             String root = System.getProperty("user.dir");
             String path = "src/main/resources/archivos";
             String fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-            String nombreArchivo = fecha + "_" + archivo.getOriginalFilename();
-            File destino = new File(root + "/" + path + "/" + nombreArchivo);
-            destino.getParentFile().mkdirs();
-            archivo.transferTo(destino);
+            String absolutePath = root + "/" + path + "/" + fecha + archivo.getOriginalFilename();
+
+            File savedFile = new File(absolutePath);
+            archivo.transferTo(savedFile);
+
+            List<UsuarioDireccion> usuariosDireccion = new ArrayList<>();
+            if (extension.equalsIgnoreCase("txt")) {
+                usuariosDireccion = LecturaArchivoTXT(savedFile);
+            } else if (extension.equalsIgnoreCase("xlsx")) {
+                usuariosDireccion = LecturaArchivoXLSX(savedFile);
+            }
+
+            List<ResultValidarDatos> errores = ValidarDatos(usuariosDireccion);
+            if (!errores.isEmpty()) {
+                model.addAttribute("errores", errores);
+                return "CargaMasiva";
+            } else {
+                session.setAttribute("path", absolutePath);
+                session.setAttribute("extension", extension);
+            }
         }
-        return "redirect:/usuario";
+        return "/CargaMasiva";
     }
 
-    public List<UsuarioDireccion> LecturaArchivoXLSX(MultipartFile archivo) {
+    @GetMapping("/CargaMasiva/procesar")
+    public String ProcesarCargaMasiva(HttpSession session) {
+        String ruta = (String) session.getAttribute("path");
+        String extension = (String) session.getAttribute("extension");
+
+        if (ruta != null && extension != null) {
+            File archivo = new File(ruta);
+            List<UsuarioDireccion> lista = new ArrayList<>();
+
+            if ("txt".equalsIgnoreCase(extension)) {
+                lista = LecturaArchivoTXT(archivo);
+            } else if ("xlsx".equalsIgnoreCase(extension)) {
+                lista = LecturaArchivoXLSX(archivo);
+            }
+
+            usuarioDAOImplementatio.AddMasivo(lista); 
+        }
+        session.removeAttribute("path");
+        session.removeAttribute("extension");
+
+        return "redirect:/usuario"; 
+    }
+
+    public List<UsuarioDireccion> LecturaArchivoXLSX(File archivo) {
         List<UsuarioDireccion> listaUsuarios = new ArrayList<>();
 
-        try (InputStream inputStream = archivo.getInputStream(); Workbook workbook = new XSSFWorkbook(inputStream)) {
+        try (Workbook workbook = new XSSFWorkbook(archivo)) {
             Sheet primeraHoja = workbook.getSheetAt(0);
             Iterator<Row> filas = primeraHoja.iterator();
 
@@ -268,7 +293,6 @@ public class UsuarioController {
                 usuario.setCURP(getStringValue(filaActual.getCell(8)));
 
                 // Fecha de nacimiento
-
                 usuario.setFechaDeNacimiento(filaActual.getCell(9).getDateCellValue());
 
                 // Sexo
@@ -302,13 +326,10 @@ public class UsuarioController {
                 usuarioDireccion.setDireccionU(direccion);
                 listaUsuarios.add(usuarioDireccion);
             }
-            
-            
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
         return listaUsuarios;
     }
 
@@ -341,11 +362,11 @@ public class UsuarioController {
         }
     }
 
-    public List<UsuarioDireccion> LecturaArchivoTXT(MultipartFile archivo) {
+    public List<UsuarioDireccion> LecturaArchivoTXT(File archivo) {
 
         List<UsuarioDireccion> usuariosDireccion = new ArrayList<>();
 
-        try (InputStream inputStream = archivo.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));) {
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(archivo));) {
 
             bufferedReader.readLine();
             String linea = "";
@@ -366,7 +387,7 @@ public class UsuarioController {
                 if (datos[7] != null && !datos[7].isEmpty()) {
                     usuarioDireccion.usuarioD.setSexo(datos[7].charAt(0));
                 } else {
-                    usuarioDireccion.usuarioD.setSexo('N'); // Por ejemplo: 'N' para "No especificado"
+                    usuarioDireccion.usuarioD.setSexo('N');
                 }
 
                 usuarioDireccion.usuarioD.setNumeroDeTelefono(datos[8]);

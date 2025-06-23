@@ -1,0 +1,6 @@
+Username | Nombre | ApellidoPaterno | ApellidoMaterno | Email | Password | FechaNacimiento | Sexo | Telefono | Celular | CURP | Imagen | IdRol | Calle | NumeroInterior | NumeroExterior | IdColonia
+rodrigom|Rodrigo|Martinez|Sanchez|rodrigo.mtz@example.com|RodriPass321|1993-09-22|H|5554321987|5543219876|MASR930922HDFTRD02|rodrigo.jpg|1|Calle Insurgentes|14|120|1
+paulas|Paula|Santos|Diaz|paula.santos@example.com|PaulaSecure88|1990-02-11|M|5588887777|5577778888|SADP900211MDFLSA04|paula.jpg|3|Avenida Universidad|5|25|2
+javierv|Javier|Vargas|Ortega|javier.vargas@example.com|JaviPass!567|1987-06-30|H|5556664444|5544446666|VAOJ870630HDFRRT06|javier.jpg|2|Boulevard Las Palmas|9|77|1
+lauram|Laura|Morales|Pineda|laura.morales@example.com|LauMor!2023|1991-08-19|M|5576543210|5565432109|MOLP910819MDFRRR07|laura.png|4|Calle Morelos|21B|300|3
+fernandop|Fernando|Perez|Lopez|fernando.perez@example.com|FerLopez99|1994-12-05|H|5566123344|5554433221|PELF941205HDFGRL05|fernando.jpg|1|Avenida Revolucion|8|66|2

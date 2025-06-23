@@ -1,0 +1,6 @@
+Username | Nombre | ApellidoPaterno | ApellidoMaterno | Email | Password | FechaNacimiento | Sexo | Telefono | Celular | CURP | Imagen | IdRol | Calle | NumeroInterior | NumeroExterior | IdColonia
+juanperez|Juan|Pérez|López|juan.perez@example.com|Password123|1990-04-15|H|5551234567|5512345678|PEPJ900415HDFRRN08|juan.jpg|2|Calle Reforma|10|23|3
+mariag|María|García|Ramírez|maria.garcia@example.com|SecurePass!45|1985-12-02|M|5587654321|5598765432|GARM851202MDFMRR05|maria.png|3|Avenida Central|15B|200|3
+carlosr|Carlos|Ramírez|Hernández|carlos.ramirez@example.com|MyPass2023|1992-07-20|H|5545678901|5523456789|RARJ920720HDFRRN03|carlos.jpg|1|Boulevard del Sol|3|55|2
+analopez|Ana|López|Martínez|ana.lopez@example.com|AnaLopez*99|1995-03-10|M|5578901234|5534567890|LOPA950310MDFLZN09|ana.png|4|Calle Hidalgo|7A|101|2
+luisf|Luis|Fernández|Gómez|luis.fernandez@example.com|LuisF!2024|1988-11-05|H|5567890123|5545678901|FEGL881105HDFLRS07|luis.jpg|2|Calle Juárez|12|88|3
