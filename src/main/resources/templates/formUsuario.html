@@ -369,6 +369,22 @@
                                             var codigoPostal = option.data("cp"); // obtenemos el valor en cp
                                             $("#ddlcodigoPostal").val(codigoPostal); // setteamos el valor de cp en el input de codigo postal
                                         });
+                                        
+//                                        $("#ddlcodigopostal").change(function(){
+//                                            var codigoPostal = option.data("cp");
+//                                            $.ajax({
+//                                                type: 'GET',
+//                                                url: "/usuario/codigoPostal/" + codigoPostal,
+//                                                datatype: "json",
+//                                                success: function(response){
+//                                                    $("#ddlcolonia").empty();
+//                                                    $("#ddlcolonia").append("<option value=0 selected>Selecciona tu colonia</option>");
+//                                                    $.each(response.objects, function(i, colonia){
+//                                                        $("#ddlcolonia").append("<option value=" + colonia.idColonia + ">" + colonia.nombreColonia + "</option>");
+//                                                    });
+//                                                }
+//                                            });
+//                                        });
 //                                    $("form").submit(function (event) { // campturamos el evento del boton submit
 //                                        const selects = ["#ddlpais", "#ddlestado", "#ddlmunicipio", "#ddlcolonia"]; // creamos una lista de ID de los selects
 //                                        let validate = true; // inicializamos una variable booleana
