@@ -1,18 +1,36 @@
-package com.Rodolfo.RRamirezProgramacionNCapasMaven.ML;
+package com.Rodolfo.RRamirezProgramacionNCapasMaven.JPA;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
+@Entity
 public class Direccion {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "iddireccion")
     private int IdDireccion;
     
-    @Pattern(regexp = "[A-Za-z0-9\\s.-]+?")
-    @NotEmpty(message = "La calle no puede estar vacia")
+    @Column(name = "calle")
     private String Calle;
+    
+    @Column(name = "numerointerior")
     private String NumeroInterior;
+    
+    @Column(name = "numeroexterior")
     private String NumeroExterior;
+    
+    @JoinColumn(name = "idcolonia")
+    @ManyToOne
     public Colonia colonia;
+    
+    @JoinColumn(name = "idusuario")
+    @ManyToOne
     public Usuario usuario;
 
     public int getIdDireccion() {

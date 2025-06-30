@@ -1,5 +1,8 @@
 package com.Rodolfo.RRamirezProgramacionNCapasMaven.ML;
 
+import com.Rodolfo.RRamirezProgramacionNCapasMaven.JPA.*;
+import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.*;
+
 public class ResultValidarDatos {
     
     private int Fila;
