@@ -5,9 +5,7 @@ import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.DireccionJPADAOImplementa
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.EstadoJPADAOImplementation;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.MunicipioJPADAOImplementation;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.PaisJPADAOImplementation;
-import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.RolDAOImplementation;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.RolJPADAOImplementation;
-import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.UsuarioDAOImplementation;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.UsuarioJPADAOImplementation;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Colonia;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Direccion;
@@ -54,10 +52,6 @@ import org.apache.poi.ss.usermodel.Cell;
 @RequestMapping("/usuario")
 public class UsuarioController {
 
-    @Autowired // Inyeccion de dependencia
-    private UsuarioDAOImplementation usuarioDAOImplementatio;
-    @Autowired
-    private RolDAOImplementation rolDAOImplementation;
     @Autowired
     private UsuarioJPADAOImplementation usuarioJPADAOImplementation;
     @Autowired
@@ -72,6 +66,12 @@ public class UsuarioController {
     private MunicipioJPADAOImplementation municipioJPADAOImplementation;
     @Autowired
     private ColoniaJPADAOImplementation coloniaJPADAOImplementation;
+    
+//    
+//    @GetMapping("/loginUsuario")
+//    public String Login(){
+//        return "loginUsuario";
+//    }
 
     @GetMapping // maneja solicitudes GET
     public String Usuario(Model model) {
@@ -174,7 +174,7 @@ public class UsuarioController {
 
         if (idDireccion == null) { // editar usuario
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
-            usuarioDireccion = (UsuarioDireccion) usuarioDAOImplementatio.GetById(idUsuario).object;
+            usuarioDireccion = (UsuarioDireccion) usuarioJPADAOImplementation.GetById(idUsuario).object;
             usuarioDireccion.direccionU = new Direccion();
             usuarioDireccion.direccionU.setIdDireccion(-1);
             model.addAttribute("usuarioDireccion", usuarioDireccion);
@@ -202,7 +202,7 @@ public class UsuarioController {
         }
         return "formUsuario";
     }
-    
+
     @GetMapping("CargaMasiva")
     public String CargaMasiva() {
         return "CargaMasiva";
@@ -255,7 +255,7 @@ public class UsuarioController {
                 lista = LecturaArchivoXLSX(archivo);
             }
 
-            usuarioDAOImplementatio.AddMasivo(lista);
+            usuarioJPADAOImplementation.Add(lista);
         }
         session.removeAttribute("path");
         session.removeAttribute("extension");
@@ -332,7 +332,6 @@ public class UsuarioController {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
         }
         return listaUsuarios;
     }

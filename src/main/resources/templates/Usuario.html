@@ -5,14 +5,21 @@
     <body layout:fragment="body">
 
         <div class="container my-5">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Listado de Usuarios</h2>
-                <a class="btn btn-success shadow-sm" th:href="@{/usuario/form/0}">
-                    <i class="fa fa-user-plus me-1"></i> Agregar Usuario
-                </a>
+            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Listado de Usuarios</h2>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-success shadow-sm" th:href="@{/usuario/form/0}">
+                        <i class="fa fa-user-plus me-1"></i> Agregar Usuario
+                    </a>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-warning shadow-sm">
+                            <i class="fa fa-sign-out-alt me-1"></i> Logout
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            <form method="post" th:object="${usuario}" th:action="@{usuario}">
+            <form method="post" th:object="${usuario}" th:action="@{/usuario}" class="mb-4">
                 <div class="mb-3 d-flex gap-2">
                     <button class="btn btn-primary shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosBusqueda" aria-expanded="false" aria-controls="filtrosBusqueda">
                         <i class="fa fa-filter me-1"></i> Filtros
@@ -40,7 +47,7 @@
                             <div class="col-md-3">
                                 <label for="rol" class="form-label">Rol</label>
                                 <select class="form-select" id="rol" th:field="*{Rol.IdRol}">
-                                    <option value=0>Selecciona un Rol</option>
+                                    <option value="0">Selecciona un Rol</option>
                                     <option th:each="rol : ${roles}" th:value="${rol.IdRol}" th:text="${rol.Nombre}"></option>
                                 </select>
                             </div>
@@ -67,7 +74,7 @@
                             <th>Fecha de Nacimiento</th>
                             <th>Contacto</th>
                             <th>Rol</th>
-                            <th>Direccion</th>
+                            <th>Dirección</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -79,30 +86,27 @@
                             <td th:utext="|${usuarioDireccion.usuarioD.NumeroDeTelefono} <br/> ${usuarioDireccion.usuarioD.Celular} <br/> ${usuarioDireccion.usuarioD.Email}|"></td>
                             <td th:text="${usuarioDireccion.usuarioD.Rol.Nombre}"></td>
                             <td>
-                                <ul class="list-unstyled">
-                                    <li th:each="direccion : ${usuarioDireccion.Direcciones}"
-                                        th:text="(${direccion.calle} == null) ? 'Sin Direccion' : 
-                                        |${direccion.Calle}, ${direccion.NumeroInterior}, ${direccion.NumeroExterior}, 
-                                        ${direccion.colonia.NombreColonia}, ${direccion.colonia.CodigoPostal}, 
-                                        ${direccion.colonia.municipio.NombreMunicipio}, 
-                                        ${direccion.colonia.municipio.estado.NombreEstado}, 
-                                        ${direccion.colonia.municipio.estado.pais.NombrePais}|">
+                                <ul class="list-unstyled mb-0">
+                                    <li th:each="direccion : ${usuarioDireccion.Direcciones}">
+                                        <span th:if="${direccion.Calle} == null">Sin Dirección</span>
+                                        <span th:unless="${direccion.Calle} == null"
+                                              th:text="|${direccion.Calle}, ${direccion.NumeroInterior}, ${direccion.NumeroExterior}, ${direccion.colonia.NombreColonia}, ${direccion.colonia.CodigoPostal}, ${direccion.colonia.municipio.NombreMunicipio}, ${direccion.colonia.municipio.estado.NombreEstado}, ${direccion.colonia.municipio.estado.pais.NombrePais}|"></span>
                                     </li>
                                 </ul>
                             </td>
                             <td class="text-center">
                                 <a class="btn btn-sm btn-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"
-                                   th:href="@{/usuario/form/} + (${usuarioDireccion.usuarioD.IdUsuario})">
+                                   th:href="@{/usuario/form/{id}(id=${usuarioDireccion.usuarioD.IdUsuario})}">
                                     <i class="fa fa-edit"></i>
                                 </a>
                                 <a class="btn btn-sm btn-danger me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"
-                                   th:href="@{/usuario/deleteUsuario?idUsuario=} + (${usuarioDireccion.usuarioD.IdUsuario})">
+                                   th:href="@{/usuario/deleteUsuario(idUsuario=${usuarioDireccion.usuarioD.IdUsuario})}">
                                     <i class="fa fa-trash-alt"></i>
                                 </a>
-                                <div class="form-check form-switch d-inline-block">
-                                    <input class="form-check-input" type="checkbox" role="switch"
+                                <div class="form-check form-switch d-inline-block" data-bs-toggle="tooltip" title="Activar/Inactivar">
+                                    <input class="form-check-input usuario-activo-toggle" type="checkbox" role="switch"
                                            th:attr="data-idusuario=${usuarioDireccion.usuarioD.IdUsuario}"
-                                           th:checked="${usuarioDireccion.usuarioD.IsActivo} ? true : false">
+                                           th:checked="${usuarioDireccion.usuarioD.IsActivo}">
                                     <label class="form-check-label ms-1">Activo</label>
                                 </div>
                             </td>
@@ -112,57 +116,37 @@
             </div>
         </div>
 
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" 
-                integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" 
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        <script>
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
-            $(document).ready(function () {
-
+        <script th:inline="javascript">
+            $(function () {
+                // Inicializar tooltips Bootstrap
                 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-                tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+                [...tooltipTriggerList].forEach(el => new bootstrap.Tooltip(el));
 
-
-                $('#btnMostrarFiltros').click(function () {
-                    $('#filtrosBusqueda').slideDown();
-                    $('#btnMostrarFiltros').hide();
-                    $('#btnOcultarFiltros').show();
-                    $('#btnBuscar').show();
-                });
-
-
-                $('#btnOcultarFiltros').click(function () {
-                    $('#filtrosBusqueda').slideUp();
-                    $('#btnOcultarFiltros').hide();
-                    $('#btnBuscar').hide();
-                    $('#btnMostrarFiltros').show();
-                });
-
-                $('.form-check-input').change(function () {
-                    var valor = $(this).is(':checked') ? 1 : 0;
-                    var idUsuario = $(this).data('idusuario');
-
+                // Toggle activo/inactivo via AJAX POST
+                $('.usuario-activo-toggle').on('change', function () {
+                    const valor = $(this).is(':checked') ? 1 : 0;
+                    const idUsuario = $(this).data('idusuario');
                     $.ajax({
-                        url: '/usuario/isActivo?idUsuario=' + idUsuario + '&status=' + valor,
-                        type: 'GET',
+                        url: '/usuario/isActivo',
+                        type: 'POST',
+                        data: {idUsuario: idUsuario, status: valor},
                         success: function (response) {
-                            console.log('Servidor respondio: ' + response);
+                            console.log('Servidor respondió: ' + response);
                         },
                         error: function (xhr, status, error) {
-                            console.error('Error en la peticion AJAX: ' + error);
+                            console.error('Error en la petición AJAX: ' + error);
                         }
                     });
                 });
-
             });
-
+            /*]]>*/
         </script>
     </body>
 </html>
