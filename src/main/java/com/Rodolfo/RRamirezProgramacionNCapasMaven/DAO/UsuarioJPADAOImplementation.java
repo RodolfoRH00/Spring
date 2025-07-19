@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -34,7 +35,8 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
             usuarioJPA.setFechaDeNacimiento(usuarioDireccion.usuarioD.getFechaDeNacimiento());
             usuarioJPA.setNumeroDeTelefono(usuarioDireccion.usuarioD.getNumeroDeTelefono());
             usuarioJPA.setEmail(usuarioDireccion.usuarioD.getEmail());
-            usuarioJPA.setPassword(usuarioDireccion.usuarioD.getPassword());
+            usuarioJPA.setPassword(new BCryptPasswordEncoder().encode(usuarioDireccion.usuarioD.getPassword()));
+//            usuarioJPA.setPassword(usuarioDireccion.usuarioD.getPassword());
             usuarioJPA.setSexo(usuarioDireccion.usuarioD.getSexo());
             usuarioJPA.setCelular(usuarioDireccion.usuarioD.getCelular());
             usuarioJPA.setCURP(usuarioDireccion.usuarioD.getCURP());
@@ -230,9 +232,9 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
         Result result = new Result();
         try {
             Usuario usuarioJPA = new Usuario();
-            usuarioJPA.setIdUsuario(idUsuario);
+            usuarioJPA = entityManager.find(Usuario.class, idUsuario);
             usuarioJPA.setIsActivo(status);
-            entityManager.persist(usuarioJPA);
+            entityManager.merge(usuarioJPA);
             result.correct = true;
         } catch (Exception ex) {
             result.correct = false;
@@ -435,7 +437,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
                 jpql.append(" AND LOWER(u.Nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))");
             }
 
-            if (usuario.getApellidoParteno()!= null && !usuario.getApellidoParteno().isEmpty()) {
+            if (usuario.getApellidoParteno() != null && !usuario.getApellidoParteno().isEmpty()) {
                 jpql.append(" AND LOWER(u.ApellidoPaterno) LIKE LOWER(CONCAT('%', :apellidoPaterno, '%'))");
             }
 
@@ -455,7 +457,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
                 query.setParameter("nombre", usuario.getNombre());
             }
 
-            if (usuario.getApellidoParteno()!= null && !usuario.getApellidoParteno().isEmpty()) {
+            if (usuario.getApellidoParteno() != null && !usuario.getApellidoParteno().isEmpty()) {
                 query.setParameter("apellidoPaterno", usuario.getApellidoParteno());
             }
 

@@ -135,8 +135,11 @@
                     const idUsuario = $(this).data('idusuario');
                     $.ajax({
                         url: '/usuario/isActivo',
-                        type: 'POST',
-                        data: {idUsuario: idUsuario, status: valor},
+                        type: 'GET',
+                        data: {
+                            idUsuario: idUsuario,
+                            status: valor
+                        },
                         success: function (response) {
                             console.log('Servidor respondió: ' + response);
                         },
@@ -144,9 +147,9 @@
                             console.error('Error en la petición AJAX: ' + error);
                         }
                     });
+
                 });
             });
-            /*]]>*/
         </script>
     </body>
 </html>
