@@ -120,6 +120,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
 
                 usuarioJPA.Rol = new Rol();
                 usuarioJPA.Rol.setIdRol(usuarioDireccion.usuarioD.Rol.getIdRol());
+
                 entityManager.merge(usuarioJPA);
                 result.correct = true;
             } else {
@@ -236,6 +237,23 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
             usuarioJPA.setIsActivo(status);
             entityManager.merge(usuarioJPA);
             result.correct = true;
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return result;
+    }
+
+    @Override
+    public Result GetIdByUserName(String userName) {
+
+        Result result = new Result();
+
+        try {
+            TypedQuery<Usuario> usuario = entityManager.createQuery("FROM Usuario WHERE Username = :userName", Usuario.class);
+            usuario.setParameter("userName", userName);
+            result.object = usuario.getSingleResult();
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();

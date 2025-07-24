@@ -16,4 +16,5 @@ public interface IUsuarioJPADAO {
     Result GetById(int idUsuario);
     Result Add(List<UsuarioDireccion> usuarioDireccion);
     Result DinamicSearch(Usuario usuario);
+    Result GetIdByUserName(String userName);
 }

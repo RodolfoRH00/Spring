@@ -36,6 +36,10 @@ public class UsuarioDireccion {
     public void setDirecciones(ArrayList<Direccion> Direcciones) {
         this.Direcciones = Direcciones;
     }
+
+
+    
+    
     
     
 }

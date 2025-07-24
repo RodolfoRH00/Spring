@@ -64,12 +64,6 @@
             .valueFailed {
                 border: 2px solid red;
             }
-
-            body {
-                background: linear-gradient(135deg, #e0eafc, #cfdef3);
-                min-height: 100vh;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
             .card-custom {
                 border: none;
                 border-radius: 1rem;
@@ -124,13 +118,14 @@
         <div class="container">
 
             <form method="post" th:object="${usuarioDireccion}" th:action="@{/usuario/form}" enctype="multipart/form-data">
-<!--                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
-                <input type="hidden" th:value="${usuarioDireccion.usuarioD.IdUsuario}" th:field="${usuarioDireccion.usuarioD.IdUsuario}"/>
-                <input type="hidden" th:value="${usuarioDireccion.direccionU.IdDireccion}" th:field="${usuarioDireccion.direccionU.IdDireccion}"/>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" th:field="${usuarioDireccion.usuarioD.IdUsuario}"/>
+<!--                <input type="hidden" th:value="${usuarioDireccion.direccionU.IdDireccion}"/>-->
+                <input type="hidden" th:field="${usuarioDireccion.direccionU.IdDireccion}"/>
                 <input type="hidden"  th:field="*{usuarioD.Imagen}"/>
                 <div class="card p-3 w-100 h-100">
                     <label for="imagenFile" class="form-label fw-bold">Imagen</label>
-                    <input type="file" class="form-control mb-2" name="imagenFile" id="imagenFile" accept=".png,.jpeg">
+                    <input type="file" class="form-control mb-2" name="imagenFile" id="imagenFile" accept=".png,.jpeg,.jpg">
                     <img alt="Imagen de perfil" class="profile-img" onerror="this.src='https://via.placeholder.com/140';" th:src="${usuarioDireccion.usuarioD.Imagen == null } ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/2048px-User_icon_2.svg.png' :  'data:image/png;base64,'+ ${usuarioDireccion.usuarioD.Imagen}">
                 </div>
 
@@ -293,7 +288,6 @@
                 <div class="text-end mt-4">
                     <button type="submit" class="btn btn-primary w-25"  th:if="*{(usuarioD.IdUsuario == 0 && direccionU.IdDireccion == 0) || (usuarioD.IdUsuario > 0 && direccionU.IdDireccion == 0) }">Agregar</button>
                     <button type="submit" class="btn btn-primary w-25"  th:if="*{(usuarioD.IdUsuario > 0 && direccionU.IdDireccion > 0) || (usuarioD.IdUsuario > 0 && direccionU.IdDireccion == -1) }">Editar</button>
-
                 </div>
             </form>
         </div>
@@ -323,7 +317,7 @@
                                             $.ajax({// inicio de peticion asincrona al back para traer los datos de estado
                                                 type: 'GET',
                                                 url: "/usuario/estados/" + $("#ddlpais").val(),
-                                                datatype: "json",
+                                                dataType: "json",
                                                 success: function (response) {
                                                     $("#ddlestado").empty();
                                                     $("#ddlestado").append("<option value=0 selected>Selecciona tu estado</option>");
@@ -339,7 +333,7 @@
                                             $.ajax({// municipios
                                                 type: 'GET',
                                                 url: "/usuario/estados/municipios/" + $("#ddlestado").val(),
-                                                datatype: "json",
+                                                dataType: "json",
                                                 success: function (response) {
                                                     $("#ddlmunicipio").empty();
                                                     $("#ddlmunicipio").append("<option value=0 selected>Selecciona tu municipio</option>");
@@ -355,7 +349,7 @@
                                             $.ajax({// colonias
                                                 type: 'GET',
                                                 url: "/usuario/estados/municipios/colonias/" + $("#ddlmunicipio").val(),
-                                                datatype: "json",
+                                                dataType: "json",
                                                 success: function (response) {
                                                     $("#ddlcolonia").empty();
                                                     $("#ddlcolonia").append("<option value=0 selected>Selecciona tu colonia</option>");

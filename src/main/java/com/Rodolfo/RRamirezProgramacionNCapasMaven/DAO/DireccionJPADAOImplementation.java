@@ -119,6 +119,7 @@ public class DireccionJPADAOImplementation implements IDireccionJPADAO {
     private com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Direccion mapearDireccion(Direccion direccionJPA) {
         com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Direccion direccion = new com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Direccion();
 
+        direccion.setIdDireccion(direccionJPA.getIdDireccion());
         direccion.setCalle(direccionJPA.getCalle());
         direccion.setNumeroInterior(direccionJPA.getNumeroInterior());
         direccion.setNumeroExterior(direccionJPA.getNumeroExterior());

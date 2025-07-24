@@ -1,5 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout}">
 
     <body layout:fragment="body">
@@ -8,14 +9,10 @@
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
                 <h2 class="mb-0">Listado de Usuarios</h2>
                 <div class="d-flex gap-2">
-                    <a class="btn btn-success shadow-sm" th:href="@{/usuario/form/0}">
+                    <a class="btn btn-success shadow-sm" th:href="@{/usuario/form/0}" sec:authorize="hasAuthority('Administrador')">
                         <i class="fa fa-user-plus me-1"></i> Agregar Usuario
                     </a>
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-warning shadow-sm">
-                            <i class="fa fa-sign-out-alt me-1"></i> Logout
-                        </button>
-                    </form>
+
                 </div>
             </div>
 
@@ -51,7 +48,7 @@
                                     <option th:each="rol : ${roles}" th:value="${rol.IdRol}" th:text="${rol.Nombre}"></option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" >
                                 <label for="isActivo" class="form-label">Estado</label>
                                 <select class="form-select" id="isActivo" th:field="*{IsActivo}">
                                     <option value="1">Activo</option>
@@ -95,15 +92,20 @@
                                 </ul>
                             </td>
                             <td class="text-center">
-                                <a class="btn btn-sm btn-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"
-                                   th:href="@{/usuario/form/{id}(id=${usuarioDireccion.usuarioD.IdUsuario})}">
+                                <a class="btn btn-sm btn-warning me-1"
+                                   th:href="@{/usuario/form/{id}(id=${usuarioDireccion.usuarioD.IdUsuario})}"
+                                   sec:authorize="hasAuthority('Administrador')">
                                     <i class="fa fa-edit"></i>
                                 </a>
-                                <a class="btn btn-sm btn-danger me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"
-                                   th:href="@{/usuario/deleteUsuario(idUsuario=${usuarioDireccion.usuarioD.IdUsuario})}">
+                                <a class="btn btn-sm btn-danger me-1"
+                                   th:href="@{/usuario/deleteUsuario(idUsuario=${usuarioDireccion.usuarioD.IdUsuario})}"
+                                   sec:authorize="hasAuthority('Administrador')">
                                     <i class="fa fa-trash-alt"></i>
                                 </a>
-                                <div class="form-check form-switch d-inline-block" data-bs-toggle="tooltip" title="Activar/Inactivar">
+
+
+
+                                <div class="form-check form-switch d-inline-block" data-bs-toggle="tooltip" title="Activar/Inactivar" sec:authorize="hasAuthority('Administrador')">
                                     <input class="form-check-input usuario-activo-toggle" type="checkbox" role="switch"
                                            th:attr="data-idusuario=${usuarioDireccion.usuarioD.IdUsuario}"
                                            th:checked="${usuarioDireccion.usuarioD.IsActivo}">

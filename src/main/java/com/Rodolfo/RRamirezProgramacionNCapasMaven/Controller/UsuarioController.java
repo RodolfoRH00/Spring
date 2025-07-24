@@ -47,8 +47,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.poi.ss.usermodel.Cell;
-//import org.springframework.security.access.AccessDeniedException;
-//import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 
 @Controller
 @RequestMapping("/usuario")
@@ -69,11 +69,6 @@ public class UsuarioController {
     @Autowired
     private ColoniaJPADAOImplementation coloniaJPADAOImplementation;
 
-//    
-//    @GetMapping("/loginUsuario")
-//    public String Login(){
-//        return "loginUsuario";
-//    }
     @GetMapping // maneja solicitudes GET
     public String Usuario(Model model) {
 
@@ -131,7 +126,7 @@ public class UsuarioController {
             if (result.correct) {
                 return "redirect:/usuario";
             } else {
-                return "/usuario";
+                return "redirect:/usuario/form/0";
             }
 
         } else if (usuarioDireccion.direccionU.getIdDireccion() == 0 && usuarioDireccion.usuarioD.getIdUsuario() > 0) {
@@ -153,7 +148,7 @@ public class UsuarioController {
             if (result.correct) {
                 return "redirect:/usuario";
             } else {
-                return "/usuario";
+                return "redirect:/usuario/formEdit?idUsuario=" + usuarioDireccion.usuarioD.getIdUsuario();
             }
         }
     }
@@ -175,7 +170,8 @@ public class UsuarioController {
 
         if (idDireccion == null) { // editar usuario
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
-            usuarioDireccion = (UsuarioDireccion) usuarioJPADAOImplementation.GetById(idUsuario).object;
+            usuarioDireccion.usuarioD = new Usuario();
+            usuarioDireccion.usuarioD = (Usuario) usuarioJPADAOImplementation.GetById(idUsuario).object;
             usuarioDireccion.direccionU = new Direccion();
             usuarioDireccion.direccionU.setIdDireccion(-1);
             model.addAttribute("usuarioDireccion", usuarioDireccion);
@@ -582,15 +578,15 @@ public class UsuarioController {
         return coloniaJPADAOImplementation.GetByIdMunicipio(IdMunicipio);
     }
 
-//    @GetMapping("/isActivo")
-//    @ResponseBody
-//    public boolean isActivo(@RequestParam int idUsuario, @RequestParam int status, Authentication authentication) {
-//        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(admin -> admin.getAuthority().equals("Administrador"));
-//
-//        if (!isAdmin) {
-//            throw new AccessDeniedException("Acceso Denegado");
-//        }
-//        Result result = usuarioJPADAOImplementation.IsActivo(idUsuario, status);
-//        return result.correct;
-//    }
+    @GetMapping("/isActivo")
+    @ResponseBody
+    public boolean isActivo(@RequestParam int idUsuario, @RequestParam int status, Authentication authentication) {
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(admin -> admin.getAuthority().equals("Administrador"));
+
+        if (!isAdmin) {
+            throw new AccessDeniedException("Acceso Denegado");
+        }
+        Result result = usuarioJPADAOImplementation.IsActivo(idUsuario, status);
+        return result.correct;
+    }
 }

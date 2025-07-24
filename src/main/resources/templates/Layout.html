@@ -1,5 +1,8 @@
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
     <head>
         <title>Panel de Usuario</title>
         <meta charset="UTF-8">
@@ -20,18 +23,26 @@
     </head>
 
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow align-items-center">
             <div class="container-fluid">
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
+                    <div class="navbar-text d-flex flex-wrap align-items-center gap-2">
+                        <span class="badge bg-primary-subtle text-black fw-bold" sec:authentication="name"></span>
+                        <span class="badge bg-primary-subtle text-black fw-bold" sec:authentication="principal.authorities"></span>
+                    </div>
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
                             <a class="nav-link active" aria-current="page" th:href="@{/usuario}">Inicio</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
                             <a class="nav-link" th:href="@{/usuario/CargaMasiva}"><i class="bi bi-upload"></i> Carga Masiva</a>
                         </li>
-
                     </ul>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-warning shadow-sm">
+                            <i class="fa fa-sign-out-alt me-1"></i> Logout
+                        </button>
+                    </form>
                 </div>
             </div>
         </nav>
@@ -40,7 +51,6 @@
     <body layout:fragment="body" class="bg-light">
         <div class="container mt-5">
             <div class="alert alert-info text-center shadow-sm" role="alert">
-
             </div>
         </div>
     </body>

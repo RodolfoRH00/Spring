@@ -1,9 +1,13 @@
 package com.Rodolfo.RRamirezProgramacionNCapasMaven.Configuration;
 
+import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.UsuarioJPADAOImplementation;
+import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Result;
+import com.Rodolfo.RRamirezProgramacionNCapasMaven.JPA.Usuario;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Set;
 import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,12 +23,14 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+    
+    @Autowired
+    private UsuarioJPADAOImplementation usuarioJPADAOImplementation;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -32,19 +38,14 @@ public class SecurityConfig {
         var handler = new XorCsrfTokenRequestAttributeHandler();
 
         handler.setCsrfRequestAttributeName(null);
-        httpSecurity.csrf(csrf -> csrf.disable()
-//                .csrfTokenRequestHandler(handler)
-//                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-        )
+        httpSecurity
                 .authorizeHttpRequests(config -> config
-                ////               .requestMatchers("/usuario").hasAnyAuthority("Administrador", "Soporte Tecnico")
                 .requestMatchers(HttpMethod.GET, "/usuario/CargaMasiva/**").hasAnyAuthority("Soporte Tecnico", "Administrador")
                 .requestMatchers(HttpMethod.POST, "/usuario/CargaMasiva/**").hasAnyAuthority("Soporte Tecnico", "Administrador")
-                .requestMatchers("/usuario/form/**").hasAuthority("Administrador")
-                //                .requestMatchers(HttpMethod.GET, "/usuario/**").hasAnyAuthority("Administrador", "Usuario", "Soporte Tecnico")
-                //                .requestMatchers(HttpMethod.PUT, "/usuario/**").hasAuthority("Administrador")
-                //                .requestMatchers(HttpMethod.PATCH, "/usuario/**").hasAuthority("Administrador")
-                //                .requestMatchers(HttpMethod.DELETE, "/usuario/**").hasAuthority("Administrador")
+                .requestMatchers(HttpMethod.GET, "/usuario/**").hasAnyAuthority("Administrador", "Usuario", "Soporte Tecnico")
+                .requestMatchers(HttpMethod.PUT, "/usuario/**").hasAuthority("Administrador")
+                .requestMatchers(HttpMethod.PATCH, "/usuario/**").hasAuthority("Administrador")
+                .requestMatchers(HttpMethod.DELETE, "/usuario/**").hasAuthority("Administrador")
                 .anyRequest()
                 .authenticated())
                 .exceptionHandling(accessDenied -> accessDenied
@@ -88,7 +89,9 @@ public class SecurityConfig {
             } else if (roles.contains("Soporte Tecnico")) {
                 response.sendRedirect("/usuario/CargaMasiva");
             } else if (roles.contains("Usuario")) {
-                response.sendRedirect("/usuario");
+                Result result = usuarioJPADAOImplementation.GetIdByUserName(authentication.getName());
+                Usuario usuario = (Usuario) result.object;
+                response.sendRedirect("/usuario/form/" + usuario.getIdUsuario() );
             } else {
                 response.sendRedirect("/accessDenied");
             }
