@@ -80,13 +80,7 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             String token = jwtTokenProvider.generateToken(authentication.getName());
 
-            Cookie jwtCookie = new Cookie("jwt", token);
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(30 * 60); // 30 minutos
-            response.addCookie(jwtCookie);
-
-            response.setHeader("Authorization", "Bearer " + token); // opción 1 (sólo lectura JS)
+            response.setHeader("Authorization", "Bearer " + token);
 
             Cookie cookie = new Cookie("jwt", token);
             cookie.setHttpOnly(true);

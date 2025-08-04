@@ -21,7 +21,7 @@ public class JwtTokenProvider {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(secretKey) // NO necesitas pasar el algoritmo otra vez
+                .signWith(secretKey)
                 .compact();
     }
 
