@@ -78,11 +78,17 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler role() {
         return (request, response, authentication) -> {
-            String jwt = jwtTokenProvider.generateToken(authentication.getName());
+            String token = jwtTokenProvider.generateToken(authentication.getName());
 
-            response.setHeader("Authorization", "Bearer " + jwt); // opción 1 (sólo lectura JS)
+            Cookie jwtCookie = new Cookie("jwt", token);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setPath("/");
+            jwtCookie.setMaxAge(30 * 60); // 30 minutos
+            response.addCookie(jwtCookie);
 
-            Cookie cookie = new Cookie("jwt", jwt);
+            response.setHeader("Authorization", "Bearer " + token); // opción 1 (sólo lectura JS)
+
+            Cookie cookie = new Cookie("jwt", token);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
             response.addCookie(cookie);

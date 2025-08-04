@@ -16,6 +16,7 @@ public class JwtTokenProvider {
     private final long expiration = 1000 * 60 * 30; // 30 minutos
 
     public String generateToken(String username) {
+        
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
