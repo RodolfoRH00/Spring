@@ -3,42 +3,49 @@ package com.Rodolfo.RRamirezProgramacionNCapasMaven.Configuration;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.DAO.UsuarioJPADAOImplementation;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.ML.Result;
 import com.Rodolfo.RRamirezProgramacionNCapasMaven.JPA.Usuario;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 import java.util.Set;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Autowired
     private UsuarioJPADAOImplementation usuarioJPADAOImplementation;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-
         var handler = new XorCsrfTokenRequestAttributeHandler();
-
         handler.setCsrfRequestAttributeName(null);
+
         httpSecurity
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(config -> config
                 .requestMatchers(HttpMethod.GET, "/usuario/CargaMasiva/**").hasAnyAuthority("Soporte Tecnico", "Administrador")
                 .requestMatchers(HttpMethod.POST, "/usuario/CargaMasiva/**").hasAnyAuthority("Soporte Tecnico", "Administrador")
@@ -46,10 +53,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/usuario/**").hasAuthority("Administrador")
                 .requestMatchers(HttpMethod.PATCH, "/usuario/**").hasAuthority("Administrador")
                 .requestMatchers(HttpMethod.DELETE, "/usuario/**").hasAuthority("Administrador")
-                .anyRequest()
-                .authenticated())
-                .exceptionHandling(accessDenied -> accessDenied
-                .accessDeniedHandler(handle()))
+                .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(accessDenied -> accessDenied.accessDeniedHandler(handle()))
                 .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -65,24 +71,23 @@ public class SecurityConfig {
 
     @Bean
     public AccessDeniedHandler handle() {
-        return (HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception) -> {
-            response.sendRedirect(request.getContextPath() + "/accessDenied");
-        };
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService(DataSource dataSource) {
-        JdbcUserDetailsManager usuario = new JdbcUserDetailsManager(dataSource);
-        usuario.setUsersByUsernameQuery("SELECT UserName, Password, IsActivo FROM Usuario WHERE UserName = ?");
-        usuario.setAuthoritiesByUsernameQuery("SELECT Usuario.UserName, Rol.Nombre FROM Usuario " + "JOIN Rol ON Usuario.IdRol = Rol.IdRol WHERE Usuario.UserName = ?");
-        return usuario;
+        return (request, response, exception)
+                -> response.sendRedirect(request.getContextPath() + "/accessDenied");
     }
 
     @Bean
     public AuthenticationSuccessHandler role() {
-        return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
-            Set<String> roles;
-            roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        return (request, response, authentication) -> {
+            String jwt = jwtTokenProvider.generateToken(authentication.getName());
+
+            response.setHeader("Authorization", "Bearer " + jwt); // opción 1 (sólo lectura JS)
+
+            Cookie cookie = new Cookie("jwt", jwt);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
             if (roles.contains("Administrador")) {
                 response.sendRedirect("/usuario");
@@ -91,7 +96,7 @@ public class SecurityConfig {
             } else if (roles.contains("Usuario")) {
                 Result result = usuarioJPADAOImplementation.GetIdByUserName(authentication.getName());
                 Usuario usuario = (Usuario) result.object;
-                response.sendRedirect("/usuario/form/" + usuario.getIdUsuario() );
+                response.sendRedirect("/usuario/form/" + usuario.getIdUsuario());
             } else {
                 response.sendRedirect("/accessDenied");
             }
